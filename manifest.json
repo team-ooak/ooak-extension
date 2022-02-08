@@ -1,0 +1,17 @@
+{
+  "name": "NFT imoji project",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "NFT imoji"
+  },
+  "permissions": ["activeTab", "scripting"],
+  "background": {},
+  "content_scripts": [
+    {
+      "matches": ["https://*.twitch.tv/*"],
+      "css": [],
+      "js": ["content-script.js"]
+    }
+  ]
+}
