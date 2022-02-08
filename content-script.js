@@ -1,40 +1,69 @@
 // get streamerId from url
-let streamerId;
 let chatContainer;
 let channelContainer;
+
 
 // window.addEventListener('popstate', function() {
 //     streamerId = String(window.location.href).split('/')[3];
 //     alert(streamerId);
 // });
 
-//update: 트위치 -> 채널로 들어갔을 때 안되는 버그 발견 (처음에만 그러는듯), 채팅 밑에 뜨는거 말고 옆에 붙도록
+// 1. ID tag 이미지 추가
+// 2. id team_ooak 인식 후 OOAK로 바꾸자
+// 3. Emotes
+// 4. 스위치 on/off
+const EMOTE_LINK = "https://gateway.pinata.cloud/ipfs/QmagcKVZVySuAL75dqy3jMwamQJ3KaV4YG9Ck1SCR3hX6o";
+const ID_TAG_LINK = "https://gateway.pinata.cloud/ipfs/QmfEPMHpuz1ydAyhijMvpXZZEWJhFYBA3k3GbvTyNjbckn";
 
 const chattingObserver = new MutationObserver(function (mutations) {
     mutations.forEach((mutation) => {
         if (!mutation.addedNodes[0]) {
             return;
         }
-        const newChatLineContainer = mutation.addedNodes[0];
-        const userDataContainer = newChatLineContainer.querySelector('.chat-author__display-name');
+        const newChatContainer = mutation.addedNodes[0];
+        const userDataContainer = newChatContainer.querySelector('.chat-author__display-name');
         if (userDataContainer) {
-            const userId = userDataContainer.dataset.aUser;
-            const userName = userDataContainer.innerText;
+            const streamerId = userDataContainer.dataset.aUser;
+            const streamerName = userDataContainer.innerText;
         }
-        const messageContainer = newChatLineContainer.querySelector('.text-fragment');
-        if (messageContainer) {
-            const message = messageContainer.innerText;
-            if (message === "ㅋㅋㅋㅋ") {
-                const messageBodyContainer = messageContainer.parentNode;
-                messageBodyContainer.removeChild(messageContainer);
+        const chatLineContainer = newChatContainer.querySelector('.text-fragment');
+        if (chatLineContainer) {
+            //tag 넣기 usernameContainer 2번째 자식으로 넣기
+            const usernameContainer = newChatContainer.querySelector('.chat-line__username-container');
+            const idTagBadgeContainer = document.createElement("span");
+            const idTagImg = document.createElement("img");
+            
+            idTagImg.src = ID_TAG_LINK;
+            idTagImg.width = '22';
+            idTagBadgeContainer.appendChild(idTagImg);
+            
+            const chatLineUsername = usernameContainer.querySelector('.chat-line__username');
+            if (usernameContainer)
+                usernameContainer.insertBefore(idTagBadgeContainer, chatLineUsername);
+            //id => nickname(id tag)로 변경
+            const displayName = chatLineUsername.querySelector('.chat-author__display-name');
+            if (displayName.dataset.aUser === 'team_ooak'){
+                displayName.innerText = "TEAM_OOAK";
+                displayName.nextSibling.innerText = "";
+            }
+            
 
-                var emojiContainer = document.createElement("span");
-                emojiContainer.class = "Layout-sc-nxg1ff-0 kqafdi chat-image__container"
-                var emojiImg = document.createElement("img");
-                emojiImg.src = "https://lh3.googleusercontent.com/6mrwrfIKviXxPf-TrLbcHUzs-cdin_AiRmL8nE-CdECS4-fM1O7q9SoD2YrvEfqM4KXNqfucxt5EIcy-KOtPBm6jXKtr9Nf85SKE=w600";
-                emojiImg.width = "35";
-                emojiContainer.appendChild(emojiImg);
-                messageBodyContainer.appendChild(emojiContainer);
+
+            //message 처리
+            const message = chatLineContainer.innerText;
+            // + 정규식 추출
+            if (message === "_OOAK") {
+                const messageBodyContainer = chatLineContainer.parentNode;
+                messageBodyContainer.removeChild(chatLineContainer);
+
+                var emoteContainer = document.createElement("span");
+                emoteContainer.class = "Layout-sc-nxg1ff-0 kqafdi chat-image__container"
+                var emoteImg = document.createElement("img");
+                // emoteImg.src = "https://lh3.googleusercontent.com/6mrwrfIKviXxPf-TrLbcHUzs-cdin_AiRmL8nE-CdECS4-fM1O7q9SoD2YrvEfqM4KXNqfucxt5EIcy-KOtPBm6jXKtr9Nf85SKE=w600";
+                emoteImg.src = EMOTE_LINK;
+                emoteImg.width = "25";
+                emoteContainer.appendChild(emoteImg);
+                messageBodyContainer.appendChild(emoteContainer);
             }
         }
     });
@@ -57,7 +86,6 @@ function observeNewChatMessage(chatContainer) {
 window.onload = function () {
     const linkContainer = document.querySelectorAll('.ScCoreLink-sc-udwpw5-0')[1];
     const config = { subtree: false, childList: false, attributes: true };
-    //sideNavObserver.observe(linkContainer, config);
     const twilightMain = document.querySelector('.twilight-main');
     const config2 = { subtree: true, childList: true, attributes: false };
     twilightMainObserver.observe(twilightMain, config2);
@@ -67,6 +95,7 @@ window.onload = function () {
         observeNewChatMessage(chatContainer);
     }
 }
+
 
 
 
