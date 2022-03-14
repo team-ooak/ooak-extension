@@ -7,6 +7,9 @@
   },
   "permissions": ["activeTab", "scripting"],
   "background": {},
+  "web_accessible_resources": [
+    { "resources": ["*.png"], "matches": ["<all_urls>"] }
+  ],
   "content_scripts": [
     {
       "matches": ["https://*.twitch.tv/*"],
