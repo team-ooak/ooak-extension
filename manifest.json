@@ -1,12 +1,15 @@
 {
   "name": "NFT imoji project",
+  "description": "ooak's NFT imoji project",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
-    "default_title": "NFT imoji"
+    "default_title": "Toggle on/off"
   },
   "permissions": ["activeTab", "scripting"],
-  "background": {},
+  "background": {
+    "service_worker": "background.js"
+  },
   "web_accessible_resources": [
     { "resources": ["*.png"], "matches": ["<all_urls>"] }
   ],

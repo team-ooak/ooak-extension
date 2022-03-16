@@ -14,5 +14,5 @@
 
 ### TODO
 
-- Chat Logo change
-- on/off feature on extension icon
+[x] Chat Logo change
+[x] on/off feature on extension icon
