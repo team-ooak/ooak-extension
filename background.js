@@ -3,43 +3,62 @@ const serviceStatus = {
   OFF: "#d80601",
 };
 
-const turnOn = () => {
-  chrome.action.setBadgeText({
-    text: "ON",
-  });
-  chrome.action.setBadgeBackgroundColor({
-    color: serviceStatus.ON,
-  });
-};
-
-const turnOff = () => {
-  chrome.action.setBadgeText({
-    text: "OFF",
-  });
-  chrome.action.setBadgeBackgroundColor({
-    color: serviceStatus.OFF,
-  });
-};
-
 // Global Variable
 let isOn = true;
+let port;
 
-chrome.action.onClicked.addListener((tabs) => {
-  const toggleOnOff = () => {
-    if (isOn) {
-      // Turn Off
-      turnOff();
-      isOn = false;
-    } else {
-      // Turn On
-      turnOn();
-      isOn = true;
-    }
+const init = async () => {
+  const turnOn = () => {
+    // port.postMessage({ action: "BACK_TO_CONTENT_turnOn" });
+
+    chrome.action.setBadgeText({
+      text: "ON",
+    });
+    chrome.action.setBadgeBackgroundColor({
+      color: serviceStatus.ON,
+    });
   };
 
-  toggleOnOff();
+  const turnOff = () => {
+    // port.postMessage({ action: "BACK_TO_CONTENT_turnOff" });
 
-  // chrome.tabs.sendMessage(tabs[0].id, "your message");
-});
+    chrome.action.setBadgeText({
+      text: "OFF",
+    });
+    chrome.action.setBadgeBackgroundColor({
+      color: serviceStatus.OFF,
+    });
+  };
 
-turnOn();
+  const setPort = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      port = chrome.tabs.connect(tabs[0].id, { name: "BACK_TO_CONTENT_PORT" });
+    });
+  };
+
+  const setExtensionIconClickListener = () => {
+    chrome.action.onClicked.addListener((tabs) => {
+      const toggleOnOff = () => {
+        if (isOn) {
+          // Turn Off
+          turnOff();
+          isOn = false;
+        } else {
+          // Turn On
+          turnOn();
+          isOn = true;
+        }
+      };
+
+      toggleOnOff();
+    });
+  };
+
+  // const setEventListenerFromContent = () => {};
+
+  await setPort();
+  setExtensionIconClickListener();
+  // setEventListenerFromContent();
+};
+
+init();
